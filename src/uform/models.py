@@ -258,8 +258,8 @@ class TextEncoder(nn.Module):
         return (x * attn_mask).sum(dim=1) / attn_mask.sum(dim=1)
 
     def get_attention_mask(self, attn_mask: Tensor, dtype: torch.dtype) -> Tensor:
-        attn_mask = attn_mask.to(dtype)
-        attn_mask = (1.0 - attn_mask) * torch.finfo(dtype).min
+        attn_mask = 1.0 - attn_mask.to(dtype)
+        attn_mask = attn_mask.masked_fill(attn_mask == 1.0, torch.finfo(dtype).min)
         return attn_mask.unsqueeze(1).expand(-1, attn_mask.shape[1], -1).unsqueeze(1)
 
     def get_position_ids(self, x: Tensor) -> Tensor:
